@@ -18,7 +18,9 @@ class AiProviderResource extends Resource
 {
     protected static ?string $model = AiProvider::class;
 
-    protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;
+    protected static string|BackedEnum|null $navigationIcon = 'heroicon-o-server-stack';
+
+    protected static string|\UnitEnum|null $navigationGroup = 'AI Management';
 
     protected static ?string $recordTitleAttribute = 'name';
 

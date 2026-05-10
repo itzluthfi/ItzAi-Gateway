@@ -18,7 +18,9 @@ class AiModelResource extends Resource
 {
     protected static ?string $model = AiModel::class;
 
-    protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;
+    protected static string|BackedEnum|null $navigationIcon = 'heroicon-o-cpu-chip';
+
+    protected static string|\UnitEnum|null $navigationGroup = 'AI Management';
 
     protected static ?string $recordTitleAttribute = 'model_name';
 

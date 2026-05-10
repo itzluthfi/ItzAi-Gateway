@@ -27,11 +27,15 @@ class OpenRouterDriver extends BaseDriver
     public function chat(array $payload, bool $stream = false)
     {
         $payload['stream'] = $stream;
-
-        if ($stream) {
-            return $this->getHttpClient()->withOptions(['stream' => true])->post($this->baseUrl, $payload);
+        $url = str_ends_with($this->baseUrl, '/') ? $this->baseUrl : "{$this->baseUrl}/";
+        if (! str_contains($url, 'chat/completions')) {
+            $url .= 'chat/completions';
         }
 
-        return $this->getHttpClient()->post($this->baseUrl, $payload);
+        if ($stream) {
+            return $this->getHttpClient()->withOptions(['stream' => true])->post($url, $payload);
+        }
+
+        return $this->getHttpClient()->post($url, $payload);
     }
 }

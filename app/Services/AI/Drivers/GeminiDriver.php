@@ -11,7 +11,7 @@ class GeminiDriver extends BaseDriver
 
     protected function getDefaultBaseUrl(): string
     {
-        return 'https://generativelanguage.googleapis.com/v1beta/models/';
+        return 'https://generativelanguage.googleapis.com/v1/models/';
     }
 
     protected function getHeaders(): array
@@ -26,7 +26,12 @@ class GeminiDriver extends BaseDriver
         $model = $payload['model'] ?? 'gemini-1.5-flash';
         $apiKey = $this->apiKey->api_key;
         
-        $url = "{$this->baseUrl}{$model}:" . ($stream ? 'streamGenerateContent' : 'generateContent') . "?key={$apiKey}";
+        $baseUrl = str_ends_with($this->baseUrl, '/') ? $this->baseUrl : "{$this->baseUrl}/";
+        if (! str_contains($baseUrl, 'models/')) {
+            $baseUrl .= 'models/';
+        }
+        
+        $url = "{$baseUrl}{$model}:" . ($stream ? 'streamGenerateContent' : 'generateContent') . "?key={$apiKey}";
 
         // Format payload to Gemini format if not already
         $geminiPayload = $this->formatPayload($payload);
@@ -40,12 +45,19 @@ class GeminiDriver extends BaseDriver
 
     protected function formatPayload(array $payload): array
     {
-        // Simple conversion for now, can be improved
+        $message = $payload['message'] ?? '';
+        
+        // If 'messages' array is provided, take the last user message
+        if (isset($payload['messages']) && is_array($payload['messages'])) {
+            $lastMessage = collect($payload['messages'])->where('role', 'user')->last();
+            $message = $lastMessage['content'] ?? $message;
+        }
+
         return [
             'contents' => [
                 [
                     'role' => 'user',
-                    'parts' => [['text' => $payload['message'] ?? '']]
+                    'parts' => [['text' => $message]]
                 ]
             ],
             'generationConfig' => [

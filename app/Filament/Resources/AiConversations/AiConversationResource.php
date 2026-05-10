@@ -21,23 +21,38 @@ class AiConversationResource extends Resource
 {
     protected static ?string $model = AiConversation::class;
 
-    protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;
+    protected static string|BackedEnum|null $navigationIcon = 'heroicon-o-chat-bubble-left-right';
+
+    protected static string|\UnitEnum|null $navigationGroup = 'Monitoring';
 
     public static function form(Schema $schema): Schema
     {
         return $schema
             ->components([
-                TextInput::make('user_id')
-                    ->numeric(),
-                TextInput::make('session_id'),
-                TextInput::make('role')
-                    ->required(),
+                \Filament\Schemas\Components\Grid::make(2)
+                    ->schema([
+                        TextInput::make('user_id')
+                            ->label('User ID')
+                            ->disabled(),
+                        TextInput::make('session_id')
+                            ->label('Session ID')
+                            ->disabled(),
+                        TextInput::make('role')
+                            ->label('Role (User/Assistant)')
+                            ->disabled(),
+                        TextInput::make('model')
+                            ->label('Model used')
+                            ->disabled(),
+                        \Filament\Forms\Components\Select::make('provider_id')
+                            ->label('Provider')
+                            ->relationship('provider', 'name')
+                            ->disabled(),
+                    ]),
                 Textarea::make('message')
-                    ->required()
+                    ->label('Message Content')
+                    ->rows(5)
+                    ->disabled()
                     ->columnSpanFull(),
-                TextInput::make('provider_id')
-                    ->numeric(),
-                TextInput::make('model'),
             ]);
     }
 

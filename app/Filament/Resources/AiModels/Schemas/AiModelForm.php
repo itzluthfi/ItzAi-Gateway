@@ -12,19 +12,28 @@ class AiModelForm
     {
         return $schema
             ->components([
-                TextInput::make('provider_id')
+                \Filament\Forms\Components\Select::make('provider_id')
+                    ->relationship('provider', 'name')
                     ->required()
-                    ->numeric(),
+                    ->searchable()
+                    ->preload()
+                    ->helperText('Pilih provider AI untuk model ini.'),
                 TextInput::make('model_name')
-                    ->required(),
+                    ->required()
+                    ->helperText('Nama identitas model (misal: gemini-1.5-flash).'),
                 Toggle::make('is_active')
-                    ->required(),
+                    ->required()
+                    ->default(true)
+                    ->helperText('Aktifkan atau nonaktifkan model ini.'),
                 Toggle::make('is_free')
-                    ->required(),
+                    ->required()
+                    ->default(true)
+                    ->helperText('Tandai jika model ini gratis digunakan.'),
                 TextInput::make('context_length')
                     ->required()
                     ->numeric()
-                    ->default(0),
+                    ->default(0)
+                    ->helperText('Panjang konteks maksimum model (token).'),
             ]);
     }
 }

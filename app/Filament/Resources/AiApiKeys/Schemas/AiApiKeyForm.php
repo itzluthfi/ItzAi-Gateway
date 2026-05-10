@@ -14,30 +14,51 @@ class AiApiKeyForm
     {
         return $schema
             ->components([
-                TextInput::make('provider_id')
+                Select::make('provider_id')
+                    ->relationship('provider', 'name')
                     ->required()
-                    ->numeric(),
+                    ->searchable()
+                    ->preload()
+                    ->helperText('Pilih provider AI untuk API key ini.'),
                 Textarea::make('api_key')
                     ->required()
-                    ->columnSpanFull(),
+                    ->columnSpanFull()
+                    ->hintAction(
+                        \Filament\Actions\Action::make('get_api_key_info')
+                            ->icon('heroicon-m-question-mark-circle')
+                            ->label('Cara mendapatkan API Key?')
+                            ->modalHeading('Panduan Mendapatkan API Key')
+                            ->modalContent(view('filament.pages.api-key-guide'))
+                            ->modalSubmitAction(false)
+                    )
+                    ->helperText('Masukkan API key yang valid dari provider.'),
                 Select::make('status')
                     ->options(['active' => 'Active', 'inactive' => 'Inactive', 'limited' => 'Limited'])
                     ->default('active')
-                    ->required(),
+                    ->required()
+                    ->helperText('Status saat ini dari API key.'),
                 TextInput::make('priority')
                     ->required()
                     ->numeric()
-                    ->default(1),
+                    ->default(1)
+                    ->helperText('Prioritas penggunaan (angka lebih tinggi = prioritas lebih tinggi).'),
                 TextInput::make('usage_count')
                     ->required()
                     ->numeric()
-                    ->default(0),
+                    ->default(0)
+                    ->disabled()
+                    ->helperText('Total penggunaan API key ini.'),
                 TextInput::make('error_count')
                     ->required()
                     ->numeric()
-                    ->default(0),
-                DateTimePicker::make('cooldown_until'),
-                DateTimePicker::make('last_used_at'),
+                    ->default(0)
+                    ->disabled()
+                    ->helperText('Total error yang terjadi pada API key ini.'),
+                DateTimePicker::make('cooldown_until')
+                    ->helperText('Waktu sampai API key bisa digunakan kembali setelah kena limit.'),
+                DateTimePicker::make('last_used_at')
+                    ->disabled()
+                    ->helperText('Waktu terakhir API key digunakan.'),
             ]);
     }
 }

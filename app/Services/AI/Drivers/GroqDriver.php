@@ -25,11 +25,15 @@ class GroqDriver extends BaseDriver
     public function chat(array $payload, bool $stream = false)
     {
         $payload['stream'] = $stream;
+        $url = str_ends_with($this->baseUrl, '/') ? $this->baseUrl : "{$this->baseUrl}/";
+        if (! str_contains($url, 'chat/completions')) {
+            $url .= 'chat/completions';
+        }
         
         if ($stream) {
-            return $this->getHttpClient()->withOptions(['stream' => true])->post($this->baseUrl, $payload);
+            return $this->getHttpClient()->withOptions(['stream' => true])->post($url, $payload);
         }
 
-        return $this->getHttpClient()->post($this->baseUrl, $payload);
+        return $this->getHttpClient()->post($url, $payload);
     }
 }

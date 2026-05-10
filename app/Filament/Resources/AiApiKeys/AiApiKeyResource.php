@@ -18,7 +18,9 @@ class AiApiKeyResource extends Resource
 {
     protected static ?string $model = AiApiKey::class;
 
-    protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;
+    protected static string|BackedEnum|null $navigationIcon = 'heroicon-o-key';
+
+    protected static string|\UnitEnum|null $navigationGroup = 'AI Management';
 
     public static function form(Schema $schema): Schema
     {
