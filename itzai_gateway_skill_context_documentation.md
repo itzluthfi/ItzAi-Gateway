@@ -4,22 +4,22 @@
 
 ItzAI Gateway adalah sistem backend AI Gateway multi-provider seperti OpenRouter yang mendukung:
 
-- Multi AI Provider
-- Dynamic API Key Management
-- Auto API Key Rotation
-- Auto Provider Failover
-- Streaming Response
-- Monitoring & Logging
-- Queue System
-- Redis Cache
-- REST API Universal
+* Multi AI Provider
+* Dynamic API Key Management
+* Auto API Key Rotation
+* Auto Provider Failover
+* Streaming Response
+* Monitoring & Logging
+* Queue System
+* Redis Cache
+* REST API Universal
 
 Tujuan utama:
 
-- Membuat satu endpoint universal AI
-- Menghindari rate limit dengan auto rotation
-- Memungkinkan penggunaan banyak provider AI gratis
-- Menjadi AI Gateway scalable untuk aplikasi mobile/web
+* Membuat satu endpoint universal AI
+* Menghindari rate limit dengan auto rotation
+* Memungkinkan penggunaan banyak provider AI gratis
+* Menjadi AI Gateway scalable untuk aplikasi mobile/web
 
 ---
 
@@ -29,16 +29,17 @@ Tujuan utama:
 
 Provider AI gratis seperti Gemini atau Groq memiliki:
 
-- Rate limit
-- Request limit
-- Daily quota
-- Timeout
-- Overload
+* Rate limit
+* Request limit
+* Daily quota
+* Timeout
+* Overload
 
 Jika hanya menggunakan satu API key:
-- aplikasi mudah error
-- chatbot berhenti bekerja
-- user experience buruk
+
+* aplikasi mudah error
+* chatbot berhenti bekerja
+* user experience buruk
 
 ---
 
@@ -46,10 +47,10 @@ Jika hanya menggunakan satu API key:
 
 Gunakan:
 
-- banyak provider AI
-- banyak API key
-- sistem auto rotation
-- sistem fallback otomatis
+* banyak provider AI
+* banyak API key
+* sistem auto rotation
+* sistem fallback otomatis
 
 Dengan konsep:
 
@@ -80,82 +81,260 @@ Fallback provider lain
 ## Gemini
 
 Website:
-https://aistudio.google.com
+[https://aistudio.google.com](https://aistudio.google.com)
 
 Kelebihan:
-- gratis besar
-- cepat
-- multimodal
-- context besar
-- bagus untuk chatbot
+
+* gratis besar
+* cepat
+* multimodal
+* context besar
+* bagus untuk chatbot
 
 Model:
-- gemini-2.0-flash
-- gemini-1.5-flash
+
+* gemini-2.0-flash
+* gemini-1.5-flash
 
 ---
 
 ## Groq
 
 Website:
-https://groq.com
+[https://groq.com](https://groq.com)
 
 Kelebihan:
-- sangat cepat
-- cocok streaming
-- latency rendah
+
+* sangat cepat
+* cocok streaming
+* latency rendah
 
 Model:
-- llama
-- deepseek
-- mixtral
+
+* llama
+* deepseek
+* mixtral
 
 ---
 
 ## OpenRouter
 
 Website:
-https://openrouter.ai
+[https://openrouter.ai](https://openrouter.ai)
 
 Kelebihan:
-- universal gateway
-- banyak model gratis
-- OpenAI compatible
+
+* universal gateway
+* banyak model gratis
+* OpenAI compatible
 
 Model:
-- DeepSeek
-- Qwen
-- Llama
-- Gemini
-- Claude
+
+* DeepSeek
+* Qwen
+* Llama
+* Gemini
+* Claude
 
 ---
 
-# Recommended Stack
+# UI Design System
+
+## UI Style Recommendation
+
+Gabungkan konsep:
+
+* Vercel Style
+* Supabase Style
+* OpenAI Dashboard Style
+
+Tujuan:
+
+* clean modern SaaS UI
+* developer dashboard feel
+* premium appearance
+* monitoring friendly
+* dark mode oriented
+
+---
+
+## UI Technology
+
+### Admin Dashboard
+
+Menggunakan:
+
+* FilamentPHP
+* TailwindCSS
+* Livewire
+* AlpineJS
+* Blade
+
+Stack UI Filament:
+
+```txt
+Filament
+ ├── TailwindCSS
+ ├── Livewire
+ ├── AlpineJS
+ └── Blade
+```
+
+---
+
+## Kenapa Menggunakan Filament
+
+Karena project AI Gateway membutuhkan:
+
+* dashboard monitoring
+* CRUD API key
+* CRUD provider
+* statistik usage
+* analytics
+* table management
+* internal admin tools
+
+Filament mempercepat development admin panel.
+
+---
+
+## Public App UI
+
+Frontend public menggunakan:
+
+* Expo React Native
+* React Native
+* Tailwind NativeWind
+
+Konsep UI:
+
+* ChatGPT style
+* modern AI assistant
+* realtime streaming response
+* smooth animation
+
+---
+
+## Dashboard Concept
+
+Sidebar:
+
+* Dashboard
+* AI Providers
+* API Keys
+* Models
+* Logs
+* Analytics
+* Users
+* Settings
+
+Main Content:
+
+* Usage Chart
+* Provider Health
+* Token Usage
+* Active Keys
+* Error Monitoring
+* Request Analytics
+
+---
+
+# Laravel 13 AI SDK Support
+
+## Laravel 13 Support
+
+Laravel 13 mendukung integrasi AI modern dengan sangat baik.
+
+Bisa digunakan untuk:
+
+* AI Gateway
+* AI Agent
+* Streaming AI
+* SSE
+* Queue AI
+* Multi Provider AI
+* Realtime AI Chat
+
+---
+
+## AI SDK Yang Bisa Digunakan
+
+### OpenAI PHP
+
+Support:
+
+* OpenAI
+* OpenRouter
+* Groq compatible endpoint
+
+---
+
+### Prism PHP
+
+Library AI abstraction untuk Laravel.
+
+Support:
+
+* Gemini
+* OpenAI
+* Anthropic
+* Groq
+* Ollama
+
+Cocok untuk multi-provider architecture.
+
+---
+
+### Laravel AI Packages
+
+Bisa menggunakan:
+
+* Prism
+* OpenAI PHP SDK
+* Laravel AI SDK community packages
+
+---
+
+## Kenapa Laravel Cocok Untuk AI Gateway
+
+Karena Laravel memiliki:
+
+* Queue system
+* Redis integration
+* SSE support
+* Broadcasting
+* Cache
+* Rate limiter
+* Scheduler
+* API Resource
+* Middleware
+* Encryption
+* Job batching
+* Event system
 
 ## Backend
 
-- Laravel 12
-- PHP 8.3
-- Redis
-- MySQL
+* Laravel 12
+* PHP 8.3
+* Redis
+* MySQL
 
 ## Queue
 
-- Laravel Horizon
+* Laravel Horizon
 
 ## Realtime
 
-- Laravel Reverb
-- SSE
+* Laravel Reverb
+* SSE
 
 ## Admin Panel
 
-- FilamentPHP
+* FilamentPHP
 
 ## Frontend
 
-- Expo React Native
+* Expo React Native
 
 ---
 
@@ -336,10 +515,12 @@ Menghindari rate limit API.
 1. Ambil API key aktif
 2. Gunakan untuk request
 3. Jika terkena limit:
-   - set cooldown
+
+   * set cooldown
 4. Cari key lain
 5. Jika semua key habis:
-   - switch provider
+
+   * switch provider
 
 ---
 
@@ -364,7 +545,8 @@ $key->update([
 ## Konsep
 
 Jika provider utama gagal:
-- otomatis pindah provider lain
+
+* otomatis pindah provider lain
 
 Flow:
 
@@ -382,16 +564,16 @@ OpenRouter
 
 Retry hanya untuk:
 
-- timeout
-- connection reset
-- 503
-- overload
+* timeout
+* connection reset
+* 503
+* overload
 
 Jangan retry untuk:
 
-- invalid API key
-- unauthorized
-- forbidden
+* invalid API key
+* unauthorized
+* forbidden
 
 ---
 
@@ -399,12 +581,13 @@ Jangan retry untuk:
 
 Gunakan:
 
-- SSE
-- chunk response
+* SSE
+* chunk response
 
 Tujuan:
-- realtime typing seperti ChatGPT
-- UX lebih baik
+
+* realtime typing seperti ChatGPT
+* UX lebih baik
 
 ---
 
@@ -481,11 +664,11 @@ class OpenRouterDriver implements AIProviderInterface
 
 Redis digunakan untuk:
 
-- response cache
-- queue
-- session
-- model cache
-- rate limiter
+* response cache
+* queue
+* session
+* model cache
+* rate limiter
 
 ---
 
@@ -493,10 +676,10 @@ Redis digunakan untuk:
 
 Queue digunakan untuk:
 
-- logging
-- analytics
-- cleanup
-- monitoring
+* logging
+* analytics
+* cleanup
+* monitoring
 
 ---
 
@@ -504,12 +687,12 @@ Queue digunakan untuk:
 
 Data yang dicatat:
 
-- provider
-- API key
-- response time
-- total tokens
-- request status
-- error
+* provider
+* API key
+* response time
+* total tokens
+* request status
+* error
 
 ---
 
@@ -519,14 +702,14 @@ Menggunakan FilamentPHP.
 
 Fitur:
 
-- CRUD provider
-- CRUD API key
-- disable key
-- monitoring usage
-- statistik request
-- error monitoring
-- cooldown monitor
-- test API key
+* CRUD provider
+* CRUD API key
+* disable key
+* monitoring usage
+* statistik request
+* error monitoring
+* cooldown monitor
+* test API key
 
 ---
 
@@ -546,10 +729,10 @@ protected $casts = [
 
 ## Jangan lakukan
 
-- expose API key di frontend
-- hardcode API key
-- spam request
-- bypass illegal quota
+* expose API key di frontend
+* hardcode API key
+* spam request
+* bypass illegal quota
 
 ---
 
@@ -571,16 +754,16 @@ Gemini / Groq / OpenRouter
 
 ## Bisa ditambahkan
 
-- user billing
-- token quota
-- OCR
-- image generation
-- speech to text
-- embeddings
-- vector database
-- RAG AI
-- AI agents
-- workflow automation
+* user billing
+* token quota
+* OCR
+* image generation
+* speech to text
+* embeddings
+* vector database
+* RAG AI
+* AI agents
+* workflow automation
 
 ---
 
@@ -588,15 +771,15 @@ Gemini / Groq / OpenRouter
 
 Membangun AI Gateway scalable seperti:
 
-- OpenRouter
-- Portkey
-- AI Gateway
+* OpenRouter
+* Portkey
+* AI Gateway
 
 Dengan:
-- multi provider
-- auto key rotation
-- auto failover
-- realtime streaming
-- monitoring
-- scalable architecture
 
+* multi provider
+* auto key rotation
+* auto failover
+* realtime streaming
+* monitoring
+* scalable architecture

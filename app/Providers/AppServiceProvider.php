@@ -11,7 +11,9 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
-        //
+        $this->app->singleton(\App\Services\AI\ProviderManager::class);
+        $this->app->singleton(\App\Services\AI\KeyRotator::class);
+        $this->app->singleton(\App\Services\AI\AIManager::class);
     }
 
     /**
