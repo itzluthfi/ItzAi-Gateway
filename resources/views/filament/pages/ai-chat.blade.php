@@ -254,6 +254,10 @@
                     });
                 }, 100);
             });
+
+            @this.on('start-rotation', () => {
+                @this.call('processStep');
+            });
         });
     </script>
 </x-filament-panels::page>

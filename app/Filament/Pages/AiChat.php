@@ -14,7 +14,7 @@ use Filament\Forms\Contracts\HasForms;
 use Filament\Pages\Page;
 use Filament\Schemas\Schema;
 use Filament\Schemas\Components\Grid;
-use Filament\Schemas\Components\Section;
+use Livewire\Attributes\On;
 use UnitEnum;
 
 class AiChat extends Page implements HasForms
@@ -22,19 +22,17 @@ class AiChat extends Page implements HasForms
     use InteractsWithForms;
 
     protected static string|BackedEnum|null $navigationIcon = 'heroicon-o-chat-bubble-bottom-center-text';
-
     protected static string|UnitEnum|null $navigationGroup = 'Playground';
-
     protected static ?string $navigationLabel = 'AI Chat';
-
     protected static ?string $title = 'AI Chat Playground';
-
     protected string $view = 'filament.pages.ai-chat';
 
     public ?array $data = [];
     public array $messages = [];
     public array $processLogs = [];
     public bool $isLoading = false;
+    public array $providerQueue = [];
+    public int $currentQueueIndex = 0;
 
     public function mount(): void
     {
@@ -93,78 +91,90 @@ class AiChat extends Page implements HasForms
             'content' => $userMessage,
         ];
 
+        $this->isLoading = true;
+        $this->processLogs = ["🚀 Starting Smart Rotation Engine..."];
+        
+        // Prepare Queue
+        $providerId = $formData['provider_id'] ?? null;
+        if ($providerId) {
+            $this->providerQueue = [$providerId];
+        } else {
+            $this->providerQueue = AiProvider::where('is_active', true)->orderBy('priority', 'desc')->pluck('id')->toArray();
+        }
+        
+        $this->currentQueueIndex = 0;
+        
+        // Clear message input but keep settings
         $this->form->fill([
             'smart_mode' => $formData['smart_mode'],
             'provider_id' => $formData['provider_id'] ?? null,
             'model_id' => $formData['model_id'] ?? null,
+            'message' => '',
         ]);
-        
-        $this->isLoading = true;
-        $this->processLogs = [];
 
+        $this->dispatch('start-rotation');
+    }
+
+    #[On('process-next-provider')]
+    public function processStep()
+    {
+        if ($this->currentQueueIndex >= count($this->providerQueue)) {
+            $this->messages[] = [
+                'role' => 'assistant',
+                'content' => 'Maaf, semua provider dalam antrean gagal merespons.',
+            ];
+            $this->isLoading = false;
+            return;
+        }
+
+        $pId = $this->providerQueue[$this->currentQueueIndex];
+        $provider = AiProvider::find($pId);
+        
+        $this->processLogs[] = "🔄 Mencoba provider: **{$provider->name}**...";
+        
         try {
             $aiManager = app(AIManager::class);
+            $formData = $this->data;
             
             $payload = [
                 'model' => $formData['model_id'] ?? null,
                 'messages' => [
-                    ['role' => 'user', 'content' => $userMessage]
+                    ['role' => 'user', 'content' => end($this->messages)['content'] ?? 'hi']
                 ],
             ];
 
-            // Manual loop for logging purposes in playground
-            $providerId = $formData['provider_id'] ?? null;
-            $providers = $providerId ? AiProvider::where('id', $providerId)->get() : AiProvider::where('is_active', true)->orderBy('priority', 'desc')->get();
+            $resultData = $aiManager->chat($payload, false, $pId);
+            $response = $resultData['response'];
+            $actualModel = $resultData['model'];
 
-            $success = false;
-            foreach ($providers as $p) {
-                $this->processLogs[] = "🔄 Mencoba provider: **{$p->name}**...";
-                try {
-                    $resultData = $aiManager->chat($payload, false, $p->id);
-                    $response = $resultData['response'];
-                    $actualModel = $resultData['model'];
-
-                    if ($response->successful()) {
-                        $this->processLogs[] = "✅ Berhasil dengan **{$p->name}** (Model: {$actualModel})";
-                        
-                        $result = $response->json();
-                        $content = $result['choices'][0]['message']['content'] ?? null;
-                        if (! $content) {
-                            $content = $result['candidates'][0]['content']['parts'][0]['text'] ?? null;
-                        }
-
-                        $this->messages[] = [
-                            'role' => 'assistant',
-                            'content' => $content ?? 'Empty response',
-                            'provider_name' => $p->name,
-                            'model_name' => $actualModel,
-                        ];
-                        $success = true;
-                        break;
-                    } else {
-                        $this->processLogs[] = "❌ Gagal: " . ($response->json()['error']['message'] ?? 'Unknown error');
-                    }
-                } catch (\Exception $e) {
-                    $this->processLogs[] = "⚠️ Error: " . $e->getMessage();
-                    continue;
+            if ($response->successful()) {
+                $this->processLogs[] = "✅ Berhasil dengan **{$provider->name}** (Model: {$actualModel})";
+                
+                $result = $response->json();
+                $content = $result['choices'][0]['message']['content'] ?? null;
+                if (! $content) {
+                    $content = $result['candidates'][0]['content']['parts'][0]['text'] ?? null;
                 }
-            }
 
-            if (! $success) {
                 $this->messages[] = [
                     'role' => 'assistant',
-                    'content' => 'Maaf, semua provider gagal merespons. Silakan cek log proses di bawah.',
+                    'content' => $content ?? 'Empty response',
+                    'provider_name' => $provider->name,
+                    'model_name' => $actualModel,
                 ];
+                
+                $this->isLoading = false;
+                $this->dispatch('contentChanged');
+                return;
+            } else {
+                $this->processLogs[] = "❌ Gagal: " . ($response->json()['error']['message'] ?? 'Unknown error');
             }
-
         } catch (\Exception $e) {
-            $this->messages[] = [
-                'role' => 'assistant',
-                'content' => 'Error: ' . $e->getMessage(),
-            ];
+            $this->processLogs[] = "⚠️ Error: " . $e->getMessage();
         }
 
-        $this->isLoading = false;
-        $this->dispatch('contentChanged');
+        // Continue to next provider
+        $this->currentQueueIndex++;
+        $this->dispatch('process-next-provider');
     }
 }

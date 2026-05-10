@@ -8,10 +8,11 @@ use Carbon\Carbon;
 
 class KeyRotator
 {
-    public function getAvailableKey(AiProvider $provider)
+    public function getAvailableKey(AiProvider $provider, array $exclude = [])
     {
         return AiApiKey::where('provider_id', $provider->id)
             ->where('status', 'active')
+            ->whereNotIn('id', $exclude)
             ->where(function ($query) {
                 $query->whereNull('cooldown_until')
                     ->orWhere('cooldown_until', '<=', Carbon::now());

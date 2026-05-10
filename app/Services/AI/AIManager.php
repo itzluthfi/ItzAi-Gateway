@@ -30,12 +30,6 @@ class AIManager
 
         foreach ($providers as $provider) {
             try {
-                // If a specific provider was requested via $providerId, and we are in the playground loop,
-                // we only want to try THIS provider. 
-                // But the loop here is the global fallback. 
-                // In Playground, we call chat(..., $p->id). 
-                // So here $providers will basically just be that one provider at the top.
-                
                 return $this->processWithProvider($provider, $payload, $stream, $providerId !== null);
             } catch (Exception $e) {
                 Log::warning("Provider [{$provider->name}] failed: " . $e->getMessage());
@@ -53,7 +47,6 @@ class AIManager
     {
         $requestedModel = $payload['model'] ?? null;
         
-        // Get models to try
         if ($requestedModel) {
             $models = [$requestedModel];
         } else {
@@ -68,10 +61,11 @@ class AIManager
             $currentPayload = $payload;
             $currentPayload['model'] = $modelName;
 
-            // Reset keys for each model attempt to ensure we try all keys for each model
-            // Actually, we should try all keys for the provider.
+            $triedKeys = []; // Track keys tried for THIS model/provider attempt
             
-            while ($apiKey = $this->keyRotator->getAvailableKey($provider)) {
+            while ($apiKey = $this->keyRotator->getAvailableKey($provider, $triedKeys)) {
+                $triedKeys[] = $apiKey->id; // Mark as tried
+                
                 try {
                     $startTime = microtime(true);
                     $driver = $this->providerManager->getDriver($provider, $apiKey);
@@ -96,25 +90,22 @@ class AIManager
                         ];
                     }
 
-                    // If it's a model-specific error (like 404), try the next model
-                    if ($response->status() === 404 || str_contains($response->body(), 'not found') || str_contains($response->body(), 'model')) {
-                        Log::info("Model [{$modelName}] not found for [{$provider->name}]. Trying next model...");
-                        break; // Break the while loop to try next model
+                    // Handle model-not-found errors by trying next model
+                    if ($response->status() === 404 || str_contains($response->body(), 'not found')) {
+                        Log::info("Model [{$modelName}] not found for [{$provider->name}].");
+                        break; // Break key loop to try next model
                     }
 
                     if ($response->status() === 429) { // Rate Limit
                         $this->keyRotator->setCooldown($apiKey);
-                        continue; // Try next key
+                        continue; 
                     }
 
                     $this->keyRotator->markAsError($apiKey);
-                    throw new Exception("API error ({$response->status()}): " . $response->body());
-
+                    
                 } catch (Exception $e) {
                     $this->keyRotator->markAsError($apiKey);
-                    Log::error("Key error for [{$provider->name}] with model [{$modelName}]: " . $e->getMessage());
-                    
-                    // If it's just a key error, try next key. If it's a model error, we already broke.
+                    Log::error("Key error for [{$provider->name}]: " . $e->getMessage());
                     continue; 
                 }
             }
